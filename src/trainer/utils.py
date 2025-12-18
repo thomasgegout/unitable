@@ -1,7 +1,6 @@
 from typing import List, Tuple, Dict
 import torch
 from torch import Tensor, nn
-from torchtext.vocab import Vocab
 import tokenizers as tk
 
 from src.utils import pred_token_within_range, subsequent_mask
@@ -38,7 +37,7 @@ class Batch:
         self,
         device: torch.device,
         target: str,
-        vocab: Vocab,
+        vocab: tk.Tokenizer,
         obj: List,
     ) -> None:
         self.device = device
