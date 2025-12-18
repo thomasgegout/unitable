@@ -3,7 +3,7 @@ import torch
 from torch import nn, Tensor
 from functools import partial
 
-from src.model.components import ImgLinearBackbone, PositionEmbedding, Encoder
+from model.components import ImgLinearBackbone, PositionEmbedding, Encoder
 
 
 class BeitEncoder(nn.Module):

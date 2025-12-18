@@ -13,7 +13,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 import tokenizers as tk
 import torch.nn.functional as F
 
-from src.trainer.utils import (
+from trainer.utils import (
     Batch,
     configure_optimizer_weight_decay,
     turn_off_beit_grad,
@@ -21,7 +21,7 @@ from src.trainer.utils import (
     INVALID_CELL_TOKEN,
     VALID_BBOX_TOKEN,
 )
-from src.utils import (
+from utils import (
     printer,
     compute_grad_norm,
     count_total_parameters,

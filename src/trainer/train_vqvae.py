@@ -15,7 +15,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.distributed as dist
 from torchvision.utils import make_grid
 
-from src.utils import printer, compute_grad_norm
+from utils import printer, compute_grad_norm
 
 SNAPSHOT_KEYS = set(["EPOCH", "STEP", "OPTIMIZER", "LR_SCHEDULER", "MODEL", "LOSS"])
 

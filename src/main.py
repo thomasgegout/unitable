@@ -12,7 +12,7 @@ import torch.multiprocessing as mp
 from torch.utils.data.distributed import DistributedSampler
 from torch.distributed import init_process_group, destroy_process_group
 
-from src.utils import printer, count_total_parameters
+from utils import printer, count_total_parameters
 
 log = logging.getLogger(__name__)
 

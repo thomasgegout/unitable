@@ -3,8 +3,8 @@ import torch
 from torch import Tensor, nn
 import tokenizers as tk
 
-from src.utils import pred_token_within_range, subsequent_mask
-from src.vocab import (
+from utils import pred_token_within_range, subsequent_mask
+from vocab import (
     HTML_TOKENS,
     TASK_TOKENS,
     RESERVED_TOKENS,

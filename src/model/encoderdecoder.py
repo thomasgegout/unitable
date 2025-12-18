@@ -2,7 +2,7 @@ import torch
 from torch import Tensor, nn
 from functools import partial
 
-from src.model.components import (
+from model.components import (
     ImgCnnBackbone,
     ImgLinearBackbone,
     ImgConvStemBackbone,

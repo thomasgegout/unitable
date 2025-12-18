@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 import glob
 
-from src.utils import build_table_from_html_and_cell, html_table_template
+from utils import build_table_from_html_and_cell, html_table_template
 
 
 def combine_all_json(file_dir: str) -> dict:

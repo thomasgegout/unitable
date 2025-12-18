@@ -10,8 +10,8 @@ from torch import nn, Tensor, autograd
 from torch.utils.data import DataLoader
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from src.utils import printer, compute_grad_norm
-from src.trainer.utils import configure_optimizer_weight_decay
+from utils import printer, compute_grad_norm
+from trainer.utils import configure_optimizer_weight_decay
 
 SNAPSHOT_KEYS = set(["EPOCH", "STEP", "OPTIMIZER", "LR_SCHEDULER", "MODEL", "LOSS"])
 
