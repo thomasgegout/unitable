@@ -426,7 +426,7 @@ class TableTrainer:
 
     def load_snapshot(self, path: Path):
         self.log.info(printer(self.device, f"Loading snapshot from {path}"))
-        snapshot = torch.load(path, map_location="cpu")
+        snapshot = torch.load(path, map_location="cpu", weights_only=False)
         assert SNAPSHOT_KEYS.issubset(snapshot.keys())
         return snapshot
 

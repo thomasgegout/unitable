@@ -15,7 +15,7 @@ codebook_tokens: 8192
 hidden_dim: 256
 
 model:
-  _target_: src.model.beit.BeitEncoder
+  _target_: model.beit.BeitEncoder
   d_model: ${model.d_model}
   codebook_tokens: ${model.codebook_tokens}
   dropout: ${model.dropout}
@@ -25,7 +25,7 @@ model:
     eps: 1e-6
 
 model_vqvae:
-  _target_: src.model.vqvae.DiscreteVAE
+  _target_: model.vqvae.DiscreteVAE
   image_size: ${trainer.vqvae_size}
   codebook_tokens: ${model.codebook_tokens}
   codebook_dim: 512

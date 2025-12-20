@@ -5,7 +5,7 @@ codebook_tokens: 8192
 hidden_dim: 256
 
 model:
-  _target_: src.model.vqvae.DiscreteVAE
+  _target_: model.vqvae.DiscreteVAE
   image_size: ${trainer.img_size}
   codebook_tokens: ${model.codebook_tokens}
   codebook_dim: 512

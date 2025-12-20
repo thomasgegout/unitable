@@ -1,4 +1,4 @@
-_target_: src.model.components.ImgCnnBackbone
+_target_: model.components.ImgCnnBackbone
 backbone:
   _target_: torchvision.models.resnet18
 output_channels: 512

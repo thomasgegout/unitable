@@ -1,4 +1,4 @@
-_target_: src.model.components.Decoder
+_target_: model.components.Decoder
 d_model: ${model.d_model}
 nhead: ${model.nhead}
 dropout: ${model.dropout}

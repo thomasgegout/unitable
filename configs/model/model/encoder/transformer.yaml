@@ -1,4 +1,4 @@
-_target_: src.model.components.Encoder
+_target_: model.components.Encoder
 d_model: ${model.d_model}
 nhead: ${model.nhead}
 dropout: ${model.dropout}

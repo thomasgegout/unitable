@@ -31,6 +31,10 @@ MINIPUBTABNET = $(DATA_SINGLE) \
 	+dataset/mini_pubtabnet@dataset.train_dataset=train_dataset \
 	+dataset/mini_pubtabnet@dataset.valid_dataset=valid_dataset \
 	+dataset/mini_pubtabnet@dataset.test_dataset=test_dataset
+DOCUGAMI = $(DATA_SINGLE) \
+	+dataset/docugami_dataset@dataset.train_dataset=train_dataset \
+	+dataset/docugami_dataset@dataset.valid_dataset=valid_dataset \
+	+dataset/docugami_dataset@dataset.test_dataset=test_dataset
 
 # multiple datasets
 DATA_MULTI = dataset=concat_dataset
@@ -283,6 +287,40 @@ TRAIN_mini_cell := $(VOCAB_CELL) \
 
 EXP_ssp_2m_mini_cell_base := $(TRAIN_mini_cell) $(ARCH_BASE) \
 	$(WEIGHTS_mtim_2m_base) $(LOCK_MTIM_4) $(BATCH24) $(LR_cosine216k_warm27k)
+
+#
+# Docugami dataset finetuning
+#
+
+# table structure (task code: html)
+# > make experiments/ssp_2m_docugami_html_large/.done_finetune
+TRAIN_docugami_html := $(VOCAB_HTML) \
+	$(DOCUGAMI) $(LABEL_HTML) $(AUG_RESIZE_NORM) \
+	$(TRAINER_TABLE) $(I448) $(SEQ512) \
+	$(EPOCH48) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_8e5)
+
+EXP_ssp_2m_docugami_html_large := $(TRAIN_docugami_html) $(ARCH_LARGE) \
+	$(WEIGHTS_mtim_2m_large) $(LOCK_MTIM_4) $(BATCH24) $(LR_cosine93k_warm6k)
+
+# table cell bbox (task code: bbox)
+# > make experiments/ssp_2m_docugami_bbox_large/.done_finetune
+TRAIN_docugami_bbox := $(VOCAB_BBOX) \
+	$(DOCUGAMI) $(LABEL_BBOX) $(AUG_RESIZE_NORM) \
+	$(TRAINER_TABLE) $(I448) $(SEQ1024) \
+	$(EPOCH30) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_3e4) $(GRAD_CLIP12)
+
+EXP_ssp_2m_docugami_bbox_large := $(TRAIN_docugami_bbox) $(ARCH_LARGE) \
+	$(WEIGHTS_mtim_2m_large) $(LOCK_MTIM_4) $(BATCH48) $(LR_cosine77k_warm8k)
+
+# table cell content (task code: cell)
+# > make experiments/ssp_2m_docugami_cell_large/.done_finetune
+TRAIN_docugami_cell := $(VOCAB_CELL) \
+	$(DOCUGAMI) $(LABEL_CELL) $(AUG_RESIZE_NORM) \
+	$(TRAINER_TABLE) $(I112_448) $(SEQ200) \
+	$(EPOCH24) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_8e5) $(GRAD_CLIP12)
+
+EXP_ssp_2m_docugami_cell_large := $(TRAIN_docugami_cell) $(ARCH_LARGE) \
+	$(WEIGHTS_mtim_2m_large) $(LOCK_MTIM_4) $(BATCH24) $(LR_cosine216k_warm27k)
 
 #
 # cross-dataset pretraining

@@ -7,7 +7,7 @@ import torchvision.transforms as transforms
 import numpy as np
 import os
 
-from src.utils import load_json_annotations, bbox_augmentation_resize
+from utils import load_json_annotations, bbox_augmentation_resize
 
 
 # average html annotation length: train: 181.327 149.753
@@ -40,17 +40,20 @@ class PubTabNet(Dataset):
             )
 
     def __len__(self):
-        return len(self.img_list)
+        if self.label_type == "image":
+            return len(self.img_list)
+        else:
+            return len(self.image_label_pair)
 
     def __getitem__(self, index: int) -> Any:
         if self.label_type == "image":
-            img = Image.open(self.root_dir / self.split / self.img_list[index])
+            img = Image.open(self.root_dir / self.split / self.img_list[index]).convert('RGB')
             if self.transform:
                 sample = self.transform(img)
             return sample
         else:
             obj = self.image_label_pair[index]
-            img = Image.open(self.root_dir / self.split / obj[0])
+            img = Image.open(self.root_dir / self.split / obj[0]).convert('RGB')
 
             if self.label_type == "html":
                 if self.transform:

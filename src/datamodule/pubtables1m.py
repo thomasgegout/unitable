@@ -9,7 +9,7 @@ import numpy as np
 import os
 import json
 
-from src.utils import bbox_augmentation_resize
+from utils import bbox_augmentation_resize
 
 
 class PubTables(Dataset):

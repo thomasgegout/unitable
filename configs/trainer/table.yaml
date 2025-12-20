@@ -18,11 +18,11 @@ train:
     cell: 0
     bbox: 0
   grad_clip: 5
-  epochs: 24
+  epochs: 48
   save_every: 1
   max_seq_len: ${trainer.max_seq_len}
   dataloader:
-    _target_: src.datamodule.dataloader_html
+    _target_: datamodule.dataloader_html
     batch_size: 48
     label_type: ${trainer.label_type}
 valid:
@@ -31,7 +31,7 @@ valid:
   loss_weights: ${trainer.train.loss_weights}
   max_seq_len: ${trainer.max_seq_len}
   dataloader:
-    _target_: src.datamodule.dataloader_html
+    _target_: datamodule.dataloader_html
     batch_size: 48
     label_type: ${trainer.label_type}
 test:
@@ -43,13 +43,13 @@ test:
   sampling: greedy
   save_to_prefix: html_table_result
   dataloader:
-    _target_: src.datamodule.dataloader_html
+    _target_: datamodule.dataloader_html
     batch_size: 96
     label_type: ${trainer.label_type}
 
 
 trainer:
-  _target_: src.trainer.TableTrainer
+  _target_: trainer.train_table.TableTrainer
   snapshot: null
   model_weights: null
   beit_pretrained_weights: null

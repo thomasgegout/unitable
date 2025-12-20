@@ -8,7 +8,7 @@ import torchvision.transforms as transforms
 import numpy as np
 import os
 
-from src.utils import load_json_annotations, bbox_augmentation_resize
+from utils import load_json_annotations, bbox_augmentation_resize
 
 # invalid data pairs: image_000000_1634629424.098128.png has 4 channels
 INVALID_DATA = [

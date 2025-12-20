@@ -73,13 +73,13 @@ NGPU := 1  # number of gpus used in the experiments
 # vq-vae and self-supervised pretraining
 experiments/%/.done_pretrain:
 > @echo "Using experiment configurations from variable EXP_$*"
-> cd $(SRC) && $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="train"
+> cd $(SRC) && PYTHONPATH=$$PWD:$$PYTHONPATH $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="train"
 > touch $@
 
 # finetuning from SSP weights for table structure, cell bbox and cell content
 experiments/%/.done_finetune:
 > @echo "Finetuning phase 1 - using experiment configurations from variable EXP_$*"
-> cd $(SRC) && $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="train"
+> cd $(SRC) && PYTHONPATH=$$PWD:$$PYTHONPATH $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="train"
 > @echo "Finetuning phase 2 - starting from epoch 4"
-> cd $(SRC) && $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="train" ++trainer.trainer.snapshot="epoch3_snapshot.pt" ++trainer.trainer.beit_pretrained_weights=null
+> cd $(SRC) && PYTHONPATH=$$PWD:$$PYTHONPATH $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="train" ++trainer.trainer.snapshot="epoch3_snapshot.pt" ++trainer.trainer.beit_pretrained_weights=null
 > touch $@

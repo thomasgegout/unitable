@@ -16,18 +16,18 @@ train:
   temp_anneal_rate: 1e-6
   save_every: 3
   dataloader:
-    _target_: src.datamodule.dataloader.dataloader_vae
+    _target_: datamodule.dataloader.dataloader_vae
     batch_size: 48
 valid:
   dataloader:
-    _target_: src.datamodule.dataloader.dataloader_vae
+    _target_: datamodule.dataloader.dataloader_vae
     batch_size: 48
 test:
   metrics: null
 
 
 trainer:
-  _target_: src.trainer.VqvaeTrainer
+  _target_: trainer.VqvaeTrainer
   snapshot: null
   model_weights: null
 

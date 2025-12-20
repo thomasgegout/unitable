@@ -4,8 +4,8 @@ from functools import partial
 import tokenizers as tk
 import torch
 from torch.utils.data import default_collate
-from src.utils.mask_generator import MaskGenerator
-from src.utils import (
+from utils.mask_generator import MaskGenerator
+from utils import (
     prepare_html_seq,
     prepare_cell_seq,
     prepare_bbox_seq,
