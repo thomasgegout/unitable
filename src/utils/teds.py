@@ -147,16 +147,16 @@ class TEDS(object):
         if self.n_jobs == 1:
             scores = [
                 self.evaluate(
-                    results_json[filename]["pred"],
-                    results_json[filename]["gt"],
+                    "".join(results_json[filename]["pred"]) if isinstance(results_json[filename]["pred"], list) else results_json[filename]["pred"],
+                    "".join(results_json[filename]["gt"]) if isinstance(results_json[filename]["gt"], list) else results_json[filename]["gt"],
                 )
                 for filename in tqdm(samples)
             ]
         else:
             inputs = [
                 {
-                    "pred": results_json[filename]["pred"],
-                    "true": results_json[filename]["gt"],
+                    "pred": "".join(results_json[filename]["pred"]) if isinstance(results_json[filename]["pred"], list) else results_json[filename]["pred"],
+                    "true": "".join(results_json[filename]["gt"]) if isinstance(results_json[filename]["gt"], list) else results_json[filename]["gt"],
                 }
                 for filename in samples
             ]
@@ -237,7 +237,7 @@ if __name__ == "__main__":
 
     parser.add_argument("-f", "--file", help="path to html table results in json file")
     parser.add_argument("-t", "--type", help="html, html+cell")
-    parser.add_argument("-n", "--njob", default=200, help="number of jobs in parallel")
+    parser.add_argument("-n", "--njob", type=int, default=200, help="number of jobs in parallel")
     args = parser.parse_args()
 
     results_file = args.file

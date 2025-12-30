@@ -169,3 +169,4 @@ cython_debug/
 data*
 *.zip
 recognition30
+*experiments*

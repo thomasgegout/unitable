@@ -103,6 +103,9 @@ class TableTrainer:
         self.model = self.model.to(device)
         self.model = DDP(self.model, device_ids=[device])
 
+        # Initialize AMP GradScaler for mixed precision training
+        self.scaler = torch.amp.GradScaler('cuda')
+
         # https://discuss.pytorch.org/t/extra-10gb-memory-on-gpu-0-in-ddp-tutorial/118113
         torch.cuda.set_device(device)  # master gpu takes up extra memory
         torch.cuda.empty_cache()
@@ -137,23 +140,28 @@ class TableTrainer:
         for i, obj in enumerate(self.train_dataloader):
             batch = Batch(device=self.device, target=target, vocab=self.vocab, obj=obj)
 
-            with autograd.detect_anomaly():
+            # Use AMP for mixed precision training
+            with torch.amp.autocast('cuda'):
                 loss, _ = batch.inference(
                     self.model,
                     criterion=self.criterion,
                     criterion_bbox=self.criterion_bbox,
                     loss_weights=loss_weights,
                 )
-
                 total_loss = loss["total"]
 
-                self.optimizer.zero_grad()
-                total_loss.backward()
-                if grad_clip:
-                    nn.utils.clip_grad_norm_(
-                        self.model.parameters(), max_norm=grad_clip
-                    )
-                self.optimizer.step()
+            self.optimizer.zero_grad()
+            self.scaler.scale(total_loss).backward()
+            
+            if grad_clip:
+                # Unscale gradients before clipping
+                self.scaler.unscale_(self.optimizer)
+                nn.utils.clip_grad_norm_(
+                    self.model.parameters(), max_norm=grad_clip
+                )
+            
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
 
             total_loss = total_loss.detach().cpu().data
             avg_loss += total_loss

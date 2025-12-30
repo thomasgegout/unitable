@@ -73,13 +73,43 @@ NGPU := 1  # number of gpus used in the experiments
 # vq-vae and self-supervised pretraining
 experiments/%/.done_pretrain:
 > @echo "Using experiment configurations from variable EXP_$*"
-> cd $(SRC) && PYTHONPATH=$$PWD:$$PYTHONPATH $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="train"
+> cd $(SRC) && $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="train"
 > touch $@
 
 # finetuning from SSP weights for table structure, cell bbox and cell content
 experiments/%/.done_finetune:
 > @echo "Finetuning phase 1 - using experiment configurations from variable EXP_$*"
-> cd $(SRC) && PYTHONPATH=$$PWD:$$PYTHONPATH $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="train"
+> cd $(SRC) && $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="train"
 > @echo "Finetuning phase 2 - starting from epoch 4"
-> cd $(SRC) && PYTHONPATH=$$PWD:$$PYTHONPATH $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="train" ++trainer.trainer.snapshot="epoch3_snapshot.pt" ++trainer.trainer.beit_pretrained_weights=null
+> cd $(SRC) && $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="train" ++trainer.trainer.snapshot="epoch3_snapshot.pt" ++trainer.trainer.beit_pretrained_weights=null
 > touch $@
+
+# run inference on test set
+# Usage: make experiments/ssp_2m_docugami_html_base/.done_test
+# Usage: make experiments/ssp_2m_docugami_html_base/.done_test MODEL=epoch10_model.pt
+experiments/%/.done_test:
+> @echo "Running inference on test set for experiment $*"
+> @echo "Using model: $(or $(MODEL),best.pt)"
+> cd $(SRC) && $(TORCHRUN) -m main ++name=$* $(EXP_$*) ++trainer.mode="test" \
+>   ++trainer.trainer.model_weights="../experiments/$*/model/$(or $(MODEL),best.pt)" \
+>   ++trainer.trainer.beit_pretrained_weights=null
+> touch $@
+
+# compute TEDS metrics from test results
+# Usage: make experiments/ssp_2m_docugami_html_base/.done_teds
+# Usage: make experiments/ssp_2m_docugami_html_base/.done_teds TEDS_TYPE=html+cell NJOBS=8
+experiments/%/.done_teds: experiments/%/.done_test
+> @echo "Computing TEDS metrics for experiment $*"
+> @echo "Looking for result files in experiments/$*/$*/"
+> cd $(SRC)/utils && $(PYTHON) teds.py \
+>   -f "../../experiments/$*/$*/html_table_result_0.json" \
+>   -t "$(or $(TEDS_TYPE),html)" \
+>   -n $(or $(NJOBS),8) | tee ../../experiments/$*/$*_teds_results.txt
+> @echo "TEDS results saved to experiments/$*/$*_teds_results.txt"
+> touch $@
+
+# combined target: run test and compute TEDS in one command
+# Usage: make test-ssp_2m_docugami_html_base
+test-%:
+> $(MAKE) experiments/$*/.done_test
+> $(MAKE) experiments/$*/.done_teds
