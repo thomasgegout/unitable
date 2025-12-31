@@ -110,6 +110,7 @@ TRAINER_TABLE = trainer=table
 I224 = ++trainer.img_size=[224,224]
 I448 = ++trainer.img_size=[448,448]
 I112_448 = ++trainer.img_size=[112,448]
+I896 = ++trainer.img_size=[896,896]
 
 # max sequence length
 SEQ200 = trainer.max_seq_len=200
@@ -122,6 +123,7 @@ SEQ1024 = trainer.max_seq_len=1024
 BATCH1 = ++trainer.train.dataloader.batch_size=1 ++trainer.valid.dataloader.batch_size=1
 BATCH2 = ++trainer.train.dataloader.batch_size=2 ++trainer.valid.dataloader.batch_size=2
 BATCH6 = ++trainer.train.dataloader.batch_size=2 ++trainer.valid.dataloader.batch_size=6
+BATCH12 = ++trainer.train.dataloader.batch_size=2 ++trainer.valid.dataloader.batch_size=12
 BATCH24 = ++trainer.train.dataloader.batch_size=24 ++trainer.valid.dataloader.batch_size=24
 BATCH48 = ++trainer.train.dataloader.batch_size=48 ++trainer.valid.dataloader.batch_size=48
 BATCH72 = ++trainer.train.dataloader.batch_size=72 ++trainer.valid.dataloader.batch_size=72
@@ -167,7 +169,7 @@ VQVAE_TEMP_2M = ++trainer.train.starting_temp=1. \
 
 # pretraining specific
 TRANS448_VQVAE224_GRID28_MASK300 = ++trainer.trans_size=[448,448] ++trainer.vqvae_size=[224,224] ++trainer.grid_size=28 ++trainer.num_mask_patches=300
-TRANS448_VQVAE448_GRID28_MASK300 = ++trainer.trans_size=[448,448] ++trainer.vqvae_size=[448,448] ++trainer.grid_size=28 ++trainer.num_mask_patches=300
+TRANS896_VQVAE448_GRID56_MASK1500 = ++trainer.trans_size=[896,896] ++trainer.vqvae_size=[448,448] ++trainer.grid_size=56 ++trainer.num_mask_patches=1500
 
 VQVAE1M_WEIGHTS = $(MODEL_VQVAE) ++trainer.vqvae_weights="../unitable_weights/vqvae_1m.pt"
 VQVAE2M_WEIGHTS = $(MODEL_VQVAE_L) ++trainer.vqvae_weights="../unitable_weights/vqvae_2m.pt"
@@ -180,6 +182,10 @@ WEIGHTS_mtim_2m_base = ++trainer.trainer.beit_pretrained_weights="../unitable_we
 WEIGHTS_mtim_2m_large = ++trainer.trainer.beit_pretrained_weights="../unitable_weights/ssp_2m_large.pt"
 WEIGHTS_mtim_2m_large_docugami = ++trainer.trainer.beit_pretrained_weights="../mtim_docugami/model/best.pt"
 WEIGHTS_mtim_2m_large_docugami_bigger = ++trainer.trainer.beit_pretrained_weights="../mtim_docugami_bigger/model/best.pt"
+
+html_w = ++trainer.trainer.beit_pretrained_weights="../unitable_weights/unitable_large_structure.pt"
+bbox_w = ++trainer.trainer.beit_pretrained_weights="../unitable_weights/unitable_large_bbox.pt"
+content_w = ++trainer.trainer.beit_pretrained_weights="../unitable_weights/unitable_large_content.pt"
 
 LOCK_MTIM_4 = ++trainer.trainer.freeze_beit_epoch=4
 LOCK_MTIM_8 = ++trainer.trainer.freeze_beit_epoch=8
@@ -431,30 +437,30 @@ EXP_mtim_docugami := $(TRAIN_mtim) $(DOCUGAMI) $(VQVAE2M_DOCUGAMI_WEIGHTS) $(MTI
 TRAIN_docugami_html := $(VOCAB_HTML) \
 	$(DOCUGAMI) $(LABEL_HTML) $(AUG_RESIZE_NORM) \
 	$(TRAINER_TABLE) $(I448) $(SEQ512) \
-	$(EPOCH128) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_8e5)
+	$(EPOCH48) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_8e5)
 
 EXP_ssp_2m_docugami_html_large_wpt := $(TRAIN_docugami_html) $(ARCH_LARGE) \
-	$(WEIGHTS_mtim_2m_large_docugami) $(LOCK_MTIM_8) $(BATCH24) $(LR_cosine93k_warm6k)
+	$(html_w) $(LOCK_MTIM_4) $(BATCH24) $(LR_cosine93k_warm6k)
 
 # table cell bbox (task code: bbox)
 # > make experiments/ssp_2m_docugami_bbox_large_wpt/.done_finetune
 TRAIN_docugami_bbox := $(VOCAB_BBOX) \
 	$(DOCUGAMI) $(LABEL_BBOX) $(AUG_RESIZE_NORM) \
 	$(TRAINER_TABLE) $(I448) $(SEQ1024) \
-	$(EPOCH128) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_3e4) $(GRAD_CLIP12)
+	$(EPOCH30) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_3e4) $(GRAD_CLIP12)
 
 EXP_ssp_2m_docugami_bbox_large_wpt := $(TRAIN_docugami_bbox) $(ARCH_LARGE) \
-	$(WEIGHTS_mtim_2m_large_docugami) $(LOCK_MTIM_8) $(BATCH12) $(LR_cosine77k_warm8k)
+	$(bbox_w) $(LOCK_MTIM_4) $(BATCH12) $(LR_cosine77k_warm8k)
 
 # table cell content (task code: cell)
 # > make experiments/ssp_2m_docugami_cell_large_wpt/.done_finetune
 TRAIN_docugami_cell := $(VOCAB_CELL) \
 	$(DOCUGAMI) $(LABEL_CELL) $(AUG_RESIZE_NORM) \
 	$(TRAINER_TABLE) $(I112_448) $(SEQ200) \
-	$(EPOCH128) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_8e5) $(GRAD_CLIP12)
+	$(EPOCH24) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_8e5) $(GRAD_CLIP12)
 
 EXP_ssp_2m_docugami_cell_large_wpt := $(TRAIN_docugami_cell) $(ARCH_LARGE) \
-	$(WEIGHTS_mtim_2m_large_docugami) $(LOCK_MTIM_8) $(BATCH2) $(LR_cosine216k_warm27k)
+	$(content_w) $(LOCK_MTIM_4) $(BATCH2) $(LR_cosine216k_warm27k)
 
 
 
@@ -471,7 +477,7 @@ TRAIN_vqvae := $(VOCAB_NONE) \
 TRAIN_mtim := $(VOCAB_NONE) \
 	$(LABEL_IMAGE) $(AUG_BEIT) \
 	$(TRAINER_BEIT) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_5e4) \
-	$(TRANS448_VQVAE224_GRID28_MASK300)
+	$(TRANS896_VQVAE448_GRID56_MASK1500)
 
 # vq-vae
 # > make experiments/vqvae_docugami_bigger/.done_pretrain
@@ -479,10 +485,8 @@ EXP_vqvae_docugami_bigger := $(TRAIN_vqvae) $(DOCUGAMI) $(VQVAE_TEMP_2M) $(BATCH
 
 # visual encoder pretraining - masked tabular image modeling (MTIM)
 # > make experiments/mtim_docugami_bigger/.done_pretrain
-EXP_mtim_docugami_bigger := $(TRAIN_mtim) $(DOCUGAMI) $(VQVAE2M_DOCUGAMI_WEIGHTS) $(MTIM_LARGE) \
-	$(BATCH48) $(LR_cosine8k_warm1k) $(EPOCH128)
-
-
+EXP_mtim_docugami_bigger := $(TRAIN_mtim) $(DOCUGAMI) $(VQVAE2M_DOCUGAMI_WEIGHTS_BIGGER) $(MTIM_LARGE) \
+	$(BATCH6) $(LR_cosine8k_warm1k) $(EPOCH128)
 
 
 # --------------------------- Docugami dataset finetuning with bigger pretraining --------------------------- #
@@ -490,31 +494,31 @@ EXP_mtim_docugami_bigger := $(TRAIN_mtim) $(DOCUGAMI) $(VQVAE2M_DOCUGAMI_WEIGHTS
 
 
 # table structure (task code: html)
-# > make experiments/ssp_2m_docugami_html_large_wpt/.done_finetune
-TRAIN_docugami_html := $(VOCAB_HTML) \
+# > make experiments/ssp_2m_docugami_html_large_wptb/.done_finetune
+TRAIN_docugami_html_large_wptb := $(VOCAB_HTML) \
 	$(DOCUGAMI) $(LABEL_HTML) $(AUG_RESIZE_NORM) \
-	$(TRAINER_TABLE) $(I448) $(SEQ512) \
+	$(TRAINER_TABLE) $(I896) $(SEQ1024) \
 	$(EPOCH128) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_8e5)
 
-EXP_ssp_2m_docugami_html_large_wpt := $(TRAIN_docugami_html) $(ARCH_LARGE) \
-	$(WEIGHTS_mtim_2m_large_docugami_bigger) $(LOCK_MTIM_8) $(BATCH24) $(LR_cosine93k_warm6k)
+EXP_ssp_2m_docugami_html_large_wptb := $(TRAIN_docugami_html_large_wptb) $(ARCH_LARGE) \
+	$(WEIGHTS_mtim_2m_large_docugami_bigger) $(LOCK_MTIM_8) $(BATCH12) $(LR_cosine216k_warm27k)
 
 # table cell bbox (task code: bbox)
-# > make experiments/ssp_2m_docugami_bbox_large_wpt/.done_finetune
+# > make experiments/ssp_2m_docugami_bbox_large_wptb/.done_finetune
 TRAIN_docugami_bbox := $(VOCAB_BBOX) \
 	$(DOCUGAMI) $(LABEL_BBOX) $(AUG_RESIZE_NORM) \
 	$(TRAINER_TABLE) $(I448) $(SEQ1024) \
 	$(EPOCH128) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_3e4) $(GRAD_CLIP12)
 
-EXP_ssp_2m_docugami_bbox_large_wpt := $(TRAIN_docugami_bbox) $(ARCH_LARGE) \
+EXP_ssp_2m_docugami_bbox_large_wptb := $(TRAIN_docugami_bbox) $(ARCH_LARGE) \
 	$(WEIGHTS_mtim_2m_large_docugami_bigger) $(LOCK_MTIM_8) $(BATCH12) $(LR_cosine77k_warm8k)
 
 # table cell content (task code: cell)
-# > make experiments/ssp_2m_docugami_cell_large_wpt/.done_finetune
+# > make experiments/ssp_2m_docugami_cell_large_wptb/.done_finetune
 TRAIN_docugami_cell := $(VOCAB_CELL) \
 	$(DOCUGAMI) $(LABEL_CELL) $(AUG_RESIZE_NORM) \
 	$(TRAINER_TABLE) $(I112_448) $(SEQ200) \
 	$(EPOCH128) $(OPT_ADAMW) $(OPT_WD5e2) $(LR_8e5) $(GRAD_CLIP12)
 
-EXP_ssp_2m_docugami_cell_large_wpt := $(TRAIN_docugami_cell) $(ARCH_LARGE) \
+EXP_ssp_2m_docugami_cell_large_wptb := $(TRAIN_docugami_cell) $(ARCH_LARGE) \
 	$(WEIGHTS_mtim_2m_large_docugami_bigger) $(LOCK_MTIM_8) $(BATCH2) $(LR_cosine216k_warm27k)
